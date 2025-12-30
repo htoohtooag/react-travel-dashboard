@@ -4,3 +4,36 @@
 
 => Install 
     - npm i clsx tailwind-merge
+
+=> Syncfusion 
+    ** syncfusion come with differenct packages intstall for different parts like that 
+    - https://ej2.syncfusion.com/react/documentation/chart/getting-started 
+    -  npm install 
+        @syncfusion/ej2-base 
+        @syncfusion/ej2-react-buttons 
+        @syncfusion/ej2-react-charts 
+        @syncfusion/ej2-react-grids 
+        @syncfusion/ej2-react-dropdowns 
+        @syncfusion/ej2-react-maps 
+        @syncfusion/ej2-react-navigations \
+        @syncfusion/ej2-react-splitbuttons 
+
+    => Make ssr for syncfusion (server side rendering) 
+        ssr: {
+        noExternal: [/@syncfusion/]
+        } 
+        ❝ DO NOT treat @syncfusion/* as external Instead, bundle it and transform it before running SSR ❞
+
+    => Getting keys 
+        - Create accounts 
+            - https://www.syncfusion.com/account 
+        
+        => You can get free 30 days licenses key 
+
+        => Getting the Commutiy licenses key  
+            - https://www.syncfusion.com/products/communitylicense 
+            - will get mails (7dasy and said thye will contact back or smt) 
+
+        => Set up in App 
+            - import { registerLicense } from "@syncfusion/ej2-base";
+            - registerLicense(import.meta.env.VITE_SYNCFUSION_LICENSE_KEY); 
