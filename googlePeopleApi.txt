@@ -1,0 +1,44 @@
+=> People API  
+    - https://developers.google.com/people 
+
+=> Read Profiles 
+    -  Get the person for the authenticated user  
+        - GET /v1/people/me?personFields=names,emailAddresses HTTP/1.1
+        - Host: people.googleapis.com 
+        - "https://people.googleapis.com/v1/people/me?personFields=photos" 
+
+    -> "you can look at all Filed props -> People api > Reference" 
+        - https://developers.google.com/people/api/rest/v1/people/get 
+        - "you can also try that method right side Try it " 
+
+        -> Fill every files need  
+            - resourceName ( people/me ) 
+            - personFields (photos)
+            - soruce ( READ_SOURCE_TYPE_PROFILE) 
+
+            -> Return 
+                {
+                    "resourceName": "people/...",
+                    "etag": "%..=",
+                } 
+                -> That user account does not have photos (just "api call successded, use authenticated")
+                    - resourceName → "internal Google user ID"
+                    - etag → "version hash (used for caching / change detection)"
+
+            -> Return  (user photos is given)
+                {
+                    "resourceName": "people/..",
+                    "etag": "%..=",
+                    "photos": [
+                        {
+                        "metadata": {
+                            "primary": true,
+                            "source": {
+                            "type": "PROFILE",
+                            "id": "100149001915641278228"
+                            }
+                        },
+                        "url": "https://lh3.googleusercontent.com/a/ACg8ocJFoWOSGGYWtPZ8IZIqFKafTsWyP2ztNUz3Dv-gwPlhcIc7Z-A=s100"
+                        }
+                    ]
+                }

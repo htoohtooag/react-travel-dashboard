@@ -2,7 +2,7 @@
     - npm create vite@latest 
     - install with reactRouter v7 
 
-=> Install 
+=> Install  clsx and tailwind-merge
     - npm i clsx tailwind-merge
 
 => Syncfusion 

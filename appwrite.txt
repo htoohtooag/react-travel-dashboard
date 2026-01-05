@@ -1,0 +1,6 @@
+=> Install 
+    - npm install appwrite 
+
+=> Start with React 
+    - https://appwrite.io/docs/quick-starts/react
+

@@ -1,12 +1,34 @@
-import React from 'react'
-import { Outlet } from 'react-router'
+// https://ej2.syncfusion.com/react/documentation/sidebar/getting-started 
+
+import { SidebarComponent } from "@syncfusion/ej2-react-navigations"
+import { MobileSidebar, NavItems } from "components"
+import { Outlet, redirect } from 'react-router'
+import { getExistingUser, storeUserData } from "~/appwrite/auth";
+import { account } from "~/appwrite/client";
+
+export async function clientLoader() {
+    try {
+        const user = await account.get();
+        if(!user.$id) return redirect('/sign-in');
+        const existringUser = await getExistingUser(user.$id);
+        if(existringUser?.status === 'user'){
+          return redirect("/")
+        } 
+        return existringUser?.$id ? existringUser : await storeUserData();
+    } catch (e) {
+        console.log('Error fetching user', e)
+        return redirect("/sign-in")
+    }
+};
 
 const AdminLayout = () => {
   return (
     <div className='admin-layout'>
-      mobilesidebar 
+      <MobileSidebar />
       <aside className='w-full max-w-[270px] hidden lg:block'>
-        sidebar
+        <SidebarComponent width={270} enableGestures={false}>
+          <NavItems />
+        </SidebarComponent>
       </aside>
       <aside className='children'>
         <Outlet />
