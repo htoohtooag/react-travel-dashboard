@@ -21,10 +21,9 @@ export const loginWithGoogle = async () => {
 export const getUser = async () => {
     try {
         const user = await account.get();
-        console.log("get User", user);
         if (!user) return redirect('/sign-in');
 
-        const { rows, total } = await tablesDB.listRows({
+        const { rows } = await tablesDB.listRows({
             databaseId: appwriteConfig.databaseId,
             tableId: appwriteConfig.userTableId,
             queries: [
@@ -96,7 +95,7 @@ export const storeUserData = async () => {
         if (rows.length > 0) return rows[0];
 
         const imageUrl = await getGooglePicture();
-        
+
         //=> Create new user  
         const createdUser = await database.createDocument(
             appwriteConfig.databaseId,
@@ -149,3 +148,22 @@ export const getExistingUser = async (accountId: string) => {
         return null;
     }
 };
+
+export const getAllUsers = async (limit: number, offset: number) => {
+    try {
+        const { rows: users, total } = await tablesDB.listRows({
+            databaseId: appwriteConfig.databaseId,
+            tableId: appwriteConfig.userTableId,
+            queries: [
+                Query.limit(limit),
+                Query.offset(offset)
+            ]
+        });
+
+        if (total === 0) return { users: [], total };
+        return { users, total };
+    } catch (e) {
+        console.log("Error fetching users");
+        return { users: [], total: 0 }
+    }
+}

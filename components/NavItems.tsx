@@ -7,9 +7,10 @@ interface NavItemsProps {
   handleClick?: () => void
 }
 const NavItems = ({ handleClick }: NavItemsProps) => {
+  
+  //?=> useLoaderData() always reads data from the nearest parent route loader
   const user = useLoaderData(); // we run the function nearest route clientLoadr (we use that navitems in admin so adminlyaout client-loader will run)
   const navigate = useNavigate();
-  // console.log(user, "use loade rdata")
 
   const handleLogout = async () => {
     await logoutUser(); 

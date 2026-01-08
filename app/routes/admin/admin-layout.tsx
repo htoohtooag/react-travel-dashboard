@@ -21,6 +21,7 @@ export async function clientLoader() {
     }
 };
 
+
 const AdminLayout = () => {
   return (
     <div className='admin-layout'>

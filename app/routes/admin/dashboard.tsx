@@ -1,11 +1,22 @@
 import { Header, StatsCard, Tripcard } from 'components'
-import { dashboardStats, user, allTrips } from '~/constants'
+import { getUser } from '~/appwrite/auth';
+import { dashboardStats, allTrips } from '~/constants'
+import type { Route } from './+types/dashboard';
+import { useRouteLoaderData } from 'react-router';
+
+export const clientLoader = async () => await getUser();
 
 
-const dashboard = () => { 
-  
+const dashboard = ({loaderData}: Route.ComponentProps) => { 
+  //=> Mehtod 1 (data loading same component can callback with loaderdata (data Loading) )
   const {totalUsers, usersJoined, totalTrips, tripsCreated, userRole} = dashboardStats;
+  const user = loaderData as User | null;
 
+  //?=> method 2 (with useRouteLoaderData)
+  //note we have to pass the id in the routes.ts file
+  // const user = useRouteLoaderData("admin-layout") as User | null; 
+  //! in that we can use the useLoaderData like in Navitems.tsx (because that componet is in the layoutcomport , that dashboard is on the child outliet com can not pass data so use "useRouteLoader")
+ 
   return (
     <div className='dashboard wrapper'>
       <Header 

@@ -1,0 +1,241 @@
+
+
+# 📘 React Router Data Loading — Complete Notes
+
+## 1️⃣ What is React Router Data Loading?
+
+React Router Data Loading allows you to:
+
+* Fetch data **before a route renders**
+* Redirect **before UI appears**
+* Share data across layouts and child routes
+* Decide **where** (client / server / build time) data runs
+
+It replaces:
+    *" `useEffect + fetch`"
+    * prop drilling
+    * duplicated API calls
+
+----------------------------------------------------------------
+
+## 2️⃣ The 3 Types of Data Loading
+
+### ✅ Overview Table
+
+| Type        | Function             | Runs where | When             |
+| ----------- | -------------------- | ---------- | ---------------- |
+| Client data | `clientLoader`       | Browser    | Navigation       |
+| Server data | `loader`             | Server     | SSR + navigation |
+| Static data | `loader` (prerender) | Build time | Build            |
+"can use both loader and clientLoader"
+
+----------------------------------------------------------------
+
+## 3️⃣ `clientLoader` (Client Data Loading)
+
+### What it is
+    * Runs **only in the browser**
+    * Never included in server bundle
+    * Best for "auth, sessions, browser APIs"
+
+### When to use
+
+Use `clientLoader` if data depends on:
+    * Cookies / sessions
+    * OAuth login
+    * Appwrite `account.get()`
+    * `localStorage`
+    * `window`, `document`
+
+### Example
+
+```ts
+export async function clientLoader() {
+  const user = await account.get();
+  return user;
+}
+```
+### Characteristics
+
+| Feature                | clientLoader |
+| ---------------------- | ------------ |
+| Access session cookies | ✅            |
+| Works with OAuth       | ✅            |
+| SSR                    | ❌            |
+| Static                 | ❌            |
+
+----------------------------------------------------------------
+
+
+## 4️⃣ `loader` (Server Data Loading)
+
+### What it is
+    * Runs on **server**
+    * Removed from client bundle
+    * Can safely access secrets
+
+### When to use
+
+Use `loader` if:
+    * Public data
+    * SEO needed
+    * No user-specific session
+
+### Example
+
+```ts
+export async function loader({ params }) {
+  return getProduct(params.id);
+}
+```
+
+### Characteristics
+
+| Feature        | loader         |
+| -------------- | -------------- |
+| Runs on server | ✅              |
+| Access secrets | ✅              |
+| SEO            | ✅              |
+| User session   | ❌ (by default) |
+
+----------------------------------------------------------------
+
+
+## 5️⃣ Static Data Loading (Pre-rendering)
+
+### What it is
+
+* `loader` runs at **build time**
+* Generates static HTML
+
+### When to use
+
+* Blog posts
+* Docs
+* Marketing pages
+
+### Characteristics
+
+| Feature           | Static |
+| ----------------- | ------ |
+| Runs at build     | ✅      |
+| Dynamic user data | ❌      |
+| Fastest           | ✅      |
+
+----------------------------------------------------------------
+
+
+## 6️⃣ Using `loader` + `clientLoader` Together
+
+### Why
+
+* SSR for first load
+* Client refresh on navigation
+
+### Example
+
+```ts
+export async function loader() {
+  return getPublicData();
+}
+
+export async function clientLoader({ serverLoader }) {
+  const serverData = await serverLoader();
+  const fresh = await fetch("/api/live").then(r => r.json());
+  return { ...serverData, ...fresh };
+}
+```
+
+----------------------------------------------------------------
+
+
+## 7️⃣ Route Layouts & `<Outlet />`
+
+### Layout Route
+
+```ts
+layout("./admin-layout.tsx", [...children])
+```
+Creates:
+    ```
+    AdminLayout (route)
+    ├─ Sidebar
+    ├─ NavItems
+    └─ <Outlet /> → child routes
+    ```
+
+### Important rule -> "**Each route owns its loader**
+"
+----------------------------------------------------------------
+
+## 8️⃣ Loader Data Ownership Rules (VERY IMPORTANT)
+
+| API                      | Reads data from        |
+| ------------------------ | ---------------------- |
+| `"loaderData"` prop        | This route’s loader    |  ( always reads data from the nearest parent route loader)
+| `"useLoaderData"()`        | Current route’s loader |
+| `"useRouteLoaderData"(id)` | Specific parent route  |
+| `useMatches()`           | All matched routes     |
+
+----------------------------------------------------------------
+
+## 9️⃣ `loaderData` (Route.ComponentProps)
+
+### What it is-> Injected prop containing **this route’s loader result**
+### When to use -> "ONLY when the route **defines its own loader**"
+### Example
+```ts
+export async function clientLoader() {
+  return getDashboardStats();
+}
+
+const Dashboard = ({ loaderData }: Route.ComponentProps) => {
+  console.log(loaderData);
+};
+```
+❌ Will be `"null"` if route has no loader
+
+----------------------------------------------------------------
+
+
+## 🔟 `useLoaderData()`
+
+### What it does -> "Returns loader data for **current route**"
+
+### Works when:
+    * Component is inside same route file
+    * OR component is rendered inside that route (not Outlet child)
+
+### Example
+```ts
+const NavItems = () => {
+  const user = useLoaderData();
+};
+```
+"### ❌ Does NOT read parent loader automatically"
+
+----------------------------------------------------------------
+
+
+## 1️⃣1️⃣ `useRouteLoaderData(id)` (Most important for layouts)
+
+### What it does -> "Reads loader data from **any parent route by ID**"
+
+### Required when:
+    * You have a layout with loader
+    * Child routes need layout data
+### Example
+```ts
+const user = useRouteLoaderData("admin-layout");
+```
+
+----------------------------------------------------------------
+
+## 1️⃣9️⃣ Golden Rules (Memorize)
+
+1. **"Loaders belong to routes, not components"**
+2. **Child routes do not auto-inherit loader data**
+3. **Use IDs to access parent loaders**
+4. **Auth always in layout loader**
+5. **clientLoader for sessions**
+
