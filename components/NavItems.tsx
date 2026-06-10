@@ -6,6 +6,7 @@ import { logoutUser } from "~/appwrite/auth"
 interface NavItemsProps {
   handleClick?: () => void
 }
+
 const NavItems = ({ handleClick }: NavItemsProps) => {
   
   //?=> useLoaderData() always reads data from the nearest parent route loader
@@ -26,13 +27,19 @@ const NavItems = ({ handleClick }: NavItemsProps) => {
       </Link>
       <div className="container">
         <nav>
+          {/* navLink defailt use partial prefix matching 
+          /trips ✅ matches (prefix)
+          /trips/create ✅ matches (exact)
+          ➡️ Both links become active
+          can use end  (https://reactrouter.com/api/components/NavLink#end)
+          If we give /trips end, that must show only when exactly match” (show only /tirps when only trips) */}
           {sidebarItems.map(({ id, href, icon, label }) => (
-            <NavLink to={href} key={id}>
+            <NavLink to={href} key={id} end={href === '/trips'}>
               {({ isActive, isPending }: { isActive: boolean, isPending: boolean }) => (
                 <div className={cn("group nav-item", {
                   'bg-primary-100 !text-white': isActive
                 })}
-                onClick={handleClick}
+                // onClick={handleClick}
               >
                   <img src={icon} alt={label} className={`group-hover:brightness-0 size-0 lg:size-5 group-hover:invert ${isActive ? 'brightness-0 invert' : 'text-dark-200'}`} />
                   {label}

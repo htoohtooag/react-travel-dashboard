@@ -11,7 +11,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     // console.log(request, "loader request")
     const url = new URL(request.url);  //. 'http://localhost:5173/trips?page=2' (put in new URL to call searchParams)
     const page = parseInt(url.searchParams.get("page") || "1", 10);
-    const offset = (page - 1) * limit;
+    const offset = (page - 1) * limit; //.how many items to SKIP before fetching
     const { allTrips, total } = await getAllTrips(limit, offset);
 
     return {

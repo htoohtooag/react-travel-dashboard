@@ -2,7 +2,8 @@ import { GoogleGenAI } from '@google/genai';
 import { ID } from 'appwrite';
 import { data, type ActionFunctionArgs } from 'react-router';
 import { appwriteConfig, tablesDB } from '~/appwrite/client';
-import { parseMarkdownToJson } from '~/lib/utils';
+import { createProduct } from '~/lib/stripe';
+import { parseMarkdownToJson, parseTripData } from '~/lib/utils';
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { country, numberOfDays, travelStyle, interests, budget, groupType, userId } = await request.json();
@@ -60,8 +61,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ]
     }`;
 
-    const model = process.env.GEMINI_API_MODEL; 
-    if(!model){
+    const model = process.env.GEMINI_API_MODEL;
+    if (!model) {
       throw new Error("GEMINI_API_MODEl is not defined in env varibale.")
     }
     const textResult = await genAI.models.generateContent({
@@ -101,9 +102,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     } catch (fetchError) {
       console.error("Network error fetching images", fetchError);
-      return data({ message: "Network error while fetching images.", status: 503 } );
+      return data({ message: "Network error while fetching images.", status: 503 });
     }
-    
+
 
     const result = await tablesDB.createRow({
       databaseId: appwriteConfig.databaseId,
@@ -115,6 +116,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         userId,
       }
     });
+
+    const tripDetail = parseTripData(result.tripDetails) as Trip;
+    const tripPrice = parseInt(tripDetail.estimatedPrice.replace('$', ''), 10);
+    const paymentLink = await createProduct(
+      tripDetail.name, 
+      tripDetail.description, 
+      imageUrls, 
+      tripPrice, 
+      result.$id
+    ); 
+    console.log("paymentlink after crete the produt", paymentLink)
+
+    await tablesDB.updateRow({
+      databaseId: appwriteConfig.databaseId, 
+      tableId: appwriteConfig.tripTableId,
+      rowId: result.$id, 
+      data: {
+        payment_link: paymentLink.url
+      }
+    })
 
     return data({ status: 201, id: result.$id });
     // return data({stauts: 201})
@@ -196,3 +217,61 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 //     thumb: 'https://images.unsplash.com/photo-1612258000416-4954d59f98c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NTM4ODZ8MHwxfHNlYXJjaHwxfHxNeWFubWFyJTIwUGhvdG9ncmFwaHklMjBTcG90cyUyMEx1eHVyeXxlbnwwfHx8fDE3Njc4MDkzNjR8MA&ixlib=rb-4.1.0&q=80&w=200',
 //     small_s3: 'https://s3.us-west-2.amazonaws.com/images.unsplash.com/small/photo-1612258000416-4954d59f98c9'
 //   } urls object from unsplash
+
+
+// -----------------
+// paymentlink after crete the produt {
+//   id: 'plink_1Sp1LwHNpUXoOwoDUOpmmjv3',
+//   object: 'payment_link',
+//   active: true,
+//   after_completion: {
+//     redirect: {
+//       url: 'http://localhost:5173/travel/6965e9fe003c255e2776/success'
+//     },
+//     type: 'redirect'
+//   },
+//   allow_promotion_codes: false,
+//   application: null,
+//   application_fee_amount: null,
+//   application_fee_percent: null,
+//   automatic_tax: { enabled: false, liability: null },
+//   billing_address_collection: 'auto',
+//   consent_collection: null,
+//   currency: 'usd',
+//   custom_fields: [],
+//   custom_text: {
+//     after_submit: null,
+//     shipping_address: null,
+//     submit: null,
+//     terms_of_service_acceptance: null
+//   },
+//   customer_creation: 'if_required',
+//   inactive_message: null,
+//   invoice_creation: {
+//     enabled: false,
+//     invoice_data: {
+//       account_tax_ids: null,
+//       custom_fields: null,
+//       description: null,
+//       footer: null,
+//       issuer: null,
+//       metadata: {},
+//       rendering_options: null
+//     }
+//   },
+//   livemode: false,
+//   metadata: { tripId: '6965e9fe003c255e2776' },
+//   on_behalf_of: null,
+//   payment_intent_data: null,
+//   payment_method_collection: 'if_required',
+//   payment_method_types: null,
+//   phone_number_collection: { enabled: false },
+//   restrictions: null,
+//   shipping_address_collection: null,
+//   shipping_options: [],
+//   submit_type: 'auto',
+//   subscription_data: null,
+//   tax_id_collection: { enabled: false, required: 'never' },
+//   transfer_data: null,
+//   url: 'https://buy.stripe.com/test_7sY5kD4825zX06B5r38Zq02'
+// }

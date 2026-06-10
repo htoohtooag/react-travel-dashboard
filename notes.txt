@@ -1,6 +1,6 @@
 => Vite Install 
     - npm create vite@latest 
-    - install with reactRouter v7 
+    - install with reactRouter v7   (choose react Router)
 
 => Install  clsx and tailwind-merge
     - npm i clsx tailwind-merge
