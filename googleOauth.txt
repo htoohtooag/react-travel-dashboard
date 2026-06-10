@@ -70,3 +70,4 @@ Google → Redirects back to Appwrite
  ↓
 Appwrite → Creates or logs in user
 
+

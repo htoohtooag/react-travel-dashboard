@@ -1,0 +1,16 @@
+=> After Deploy
+
+1. update the "VITE_BASE_URL" with your domain 
+
+2. Add Your Custom Domain to Appwrite
+    - Open the Appwrite Console and select your project.
+    - Find Add Platform → choose "Web".
+    - For Hostname, enter the exact domain without the protocol: react-travel-dashboard.vercel.app.
+    - Click "Create".
+
+3. Add Your Google Cloud Console Settings ("Adding client")
+    - Go to the Google Cloud Console and select your project. ("Search Google auth platform in browser")
+    - go to "clients"
+    - In the "Authorized JavaScript origins" section, ensure you have both of these entries:
+        - Add your domain 
+        
