@@ -8,8 +8,8 @@ export const loginWithGoogle = async () => {
     try {
         const resposne = account.createOAuth2Session({
             provider: OAuthProvider.Google,
-            success: "http://localhost:5173/",
-            failure: "http://localhost:5173/sign-in"
+            success: import.meta.env.VITE_BASE_URL,
+            failure: `${import.meta.env.VITE_BASE_URL}/sign-in`
         });
         console.log(resposne, "login with google")
     } catch (e) {
